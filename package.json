@@ -1,0 +1,22 @@
+{
+  "name": "aoifetch",
+  "version": "1.0.0",
+  "description": "A simple Neofetch/Fastfetch style system info tool in Node.js",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "fetch",
+    "system",
+    "info",
+    "neofetch",
+    "fastfetch"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.4.1"
+  }
+}
