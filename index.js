@@ -21,7 +21,6 @@ function getShell() {
 
 function getShellVersion(shellPath) {
   try {
-    // Only basename, e.g. "/bin/bash" => "bash"
     const shellName = shellPath.split('/').pop();
     if (/bash|zsh|fish|ksh|dash/.test(shellName)) {
       let version = execSync(`${shellPath} --version`, { encoding: 'utf8', stdio: ['ignore','pipe','ignore'] }).split('\n')[0];
@@ -155,44 +154,43 @@ function printColorBars() {
   console.log('\n' + colors.join('') + '\n' + bright.join('') + '\n');
 }
 
-console.log(chalk.cyan('      _      _        _     _           _     '));
-console.log(chalk.cyan('  __| | ___| | _____| |__ (_)_ __   __| |___ '));
-console.log(chalk.cyan(' / _` |/ _ \\ |/ / _ \\ |_ \\| | \\ \\ / /| / __|'));
-console.log(chalk.cyan('| (_| |  __/   <  __/ |_) | | |\\ V / | \\__ \\'));
-console.log(chalk.cyan(' \\__,_|\\___|_|\\_\\___|_./|_|_| \\_/  |_|___/'));
-console.log();
+function main() {
+  const b = chalk.cyan;
 
-const uname = os.userInfo().username;
-const hname = os.hostname();
-const userhost = `${uname}@${hname}`;
-console.log(chalk.bold(userhost));
-console.log('-'.repeat(userhost.length));
+  const uname = os.userInfo().username;
+  const hname = os.hostname();
+  const userhost = `${uname}@${hname}`;
+  console.log(b(userhost));
+  console.log('-'.repeat(userhost.length));
 
-console.log(`${chalk.bold('OS:')}       ${os.type()} ${os.release()} (${os.platform()})`);
-console.log(`${chalk.bold('Host:')}     ${getPrettyHost()}`);
-console.log(`${chalk.bold('Kernel:')}   ${os.release()}`);
-console.log(`${chalk.bold('Uptime:')}   ${getUptime()}`);
+  console.log(`${b('OS:')}       ${os.type()} ${os.release()} (${os.platform()})`);
+  console.log(`${b('Host:')}     ${getPrettyHost()}`);
+  console.log(`${b('Kernel:')}   ${os.release()}`);
+  console.log(`${b('Uptime:')}   ${getUptime()}`);
 
-const shellPath = getShell();
-const shellVersion = getShellVersion(shellPath);
-console.log(`${chalk.bold('Shell:')}    ${shellPath} ${shellVersion !== 'N/A' ? `(${shellVersion})` : ''}`);
+  const shellPath = getShell();
+  const shellVersion = getShellVersion(shellPath);
+  console.log(`${b('Shell:')}    ${shellPath} ${shellVersion !== 'N/A' ? `(${shellVersion})` : ''}`);
 
-console.log(`${chalk.bold('WM:')}       ${getWM()}`);
-console.log(`${chalk.bold('Packages:')} ${getPackages()}`);
-console.log(`${chalk.bold('NodeJS:')}   ${process.version}`);
-console.log(`${chalk.bold('CPU:')}      ${os.cpus()[0].model}`);
-console.log(`${chalk.bold('Memory:')}   ${(os.totalmem() / (1024 ** 3)).toFixed(2)} GB`);
+  console.log(`${b('WM:')}       ${getWM()}`);
+  console.log(`${b('Packages:')} ${getPackages()}`);
+  console.log(`${b('NodeJS:')}   ${process.version}`);
+  console.log(`${b('CPU:')}      ${os.cpus()[0].model}`);
+  console.log(`${b('Memory:')}   ${(os.totalmem() / (1024 ** 3)).toFixed(2)} GB`);
 
-const localIPs = getLocalIPs();
-if (localIPs.length > 0) {
-  for (const ip of localIPs) {
-    console.log(`${chalk.bold(`Local IP (${ip.name}):`)} ${ip.address}/${ip.maskBits}`);
+  const localIPs = getLocalIPs();
+  if (localIPs.length > 0) {
+    for (const ip of localIPs) {
+      console.log(`${b(`Local IP (${ip.name}):`)} ${ip.address}/${ip.maskBits}`);
+    }
+  } else {
+    console.log(`${b('Local IP:')} N/A`);
   }
-} else {
-  console.log(`${chalk.bold('Local IP:')} N/A`);
+
+  console.log(`${b('Battery:')}  ${getBattery()}`);
+  console.log(`${b('Locale:')}   ${getLocale()}`);
+
+  printColorBars();
 }
 
-console.log(`${chalk.bold('Battery:')}  ${getBattery()}`);
-console.log(`${chalk.bold('Locale:')}   ${getLocale()}`);
-
-printColorBars();
+main();
