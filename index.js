@@ -1,6 +1,19 @@
+#!/usr/bin/env node
 import os from 'os';
 import chalk from 'chalk';
 import { execSync } from 'child_process';
+
+function colorUsagePercent(percent) {
+  if (percent < 70) return chalk.green(percent + '%');
+  if (percent < 90) return chalk.yellowBright(percent + '%');
+  return chalk.red(percent + '%');
+}
+
+function colorBatteryPercent(percent) {
+  if (percent <= 10) return chalk.red(percent + '%');
+  if (percent <= 30) return chalk.yellowBright(percent + '%');
+  return chalk.green(percent + '%');
+}
 
 function getUptime() {
   const uptimeSec = os.uptime();
@@ -131,12 +144,12 @@ function getBattery() {
 }
 
 function getMemoryInfo() {
-  // Returns: "used/total (percent%)" format, in GB
+  // Returns: "used/total (colored percent%)" format, in GB
   const total = os.totalmem();
   const free = os.freemem();
   const used = total - free;
   const percent = ((used / total) * 100).toFixed(1);
-  return `${(used / (1024 ** 3)).toFixed(2)} / ${(total / (1024 ** 3)).toFixed(2)} GB (${percent}%)`;
+  return `${(used / (1024 ** 3)).toFixed(2)} / ${(total / (1024 ** 3)).toFixed(2)} GB (${colorUsagePercent(percent)})`;
 }
 
 function getDiskInfo() {
@@ -144,7 +157,6 @@ function getDiskInfo() {
     if (process.platform === 'win32') {
       // Only check C: for root disk
       const out = execSync('wmic logicaldisk where "DeviceID=\'C:\'" get Size,FreeSpace /format:csv', { encoding: 'utf-8' });
-      // Output: Node,FreeSpace,Size\nWIN-XXXXXXX,C:...,FreeSpace,Size\n
       const lines = out.split('\n').filter(Boolean);
       if (lines.length < 2) return 'unknown';
       const data = lines[1].split(',');
@@ -152,11 +164,10 @@ function getDiskInfo() {
       if (isNaN(total) || isNaN(free)) return 'unknown';
       const used = total - free;
       const percent = ((used / total) * 100).toFixed(1);
-      return `${(used / (1024 ** 3)).toFixed(2)} / ${(total / (1024 ** 3)).toFixed(2)} GB (${percent}%)`;
+      return `${(used / (1024 ** 3)).toFixed(2)} / ${(total / (1024 ** 3)).toFixed(2)} GB (${colorUsagePercent(percent)})`;
     } else {
       // Linux/macOS: parse df -k /
       const out = execSync('df -k /', { encoding: 'utf-8' });
-      // output: Filesystem 1K-blocks Used Available etc\n...
       const lines = out.trim().split('\n');
       if (lines.length < 2) return 'unknown';
       const parts = lines[1].split(/\s+/);
@@ -164,10 +175,20 @@ function getDiskInfo() {
       const used = parseInt(parts[2], 10) * 1024;
       const total = parseInt(parts[1], 10) * 1024;
       const percent = ((used / total) * 100).toFixed(1);
-      return `${(used / (1024**3)).toFixed(2)} / ${(total / (1024**3)).toFixed(2)} GB (${percent}%)`;
+      return `${(used / (1024**3)).toFixed(2)} / ${(total / (1024**3)).toFixed(2)} GB (${colorUsagePercent(percent)})`;
     }
   } catch(e) {}
   return 'unknown';
+}
+
+function getBatteryPercentColored() {
+  let pct = null;
+  let raw = getBattery();
+  if (typeof raw === 'string' && /\d+/.test(raw)) {
+    pct = parseInt(raw.match(/\d+/)[0], 10);
+  }
+  if (pct === null) return raw;
+  return colorBatteryPercent(pct);
 }
 
 function printColorBars() {
@@ -228,7 +249,7 @@ function main() {
     console.log(`${b('Local IP:')} N/A`);
   }
 
-  console.log(`${b('Battery:')}  ${getBattery()}`);
+  console.log(`${b('Battery:')}  ${getBatteryPercentColored()}`);
   console.log(`${b('Locale:')}   ${getLocale()}`);
 
   printColorBars();

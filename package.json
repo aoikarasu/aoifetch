@@ -1,9 +1,12 @@
 {
   "name": "aoifetch",
   "version": "1.0.0",
-  "description": "A simple Neofetch/Fastfetch style system info tool in Node.js",
+  "description": "A simple Neofetch style system info tool in Node.js, written entirely by gundalf-cli.",
   "main": "index.js",
   "type": "module",
+  "bin": {
+    "aoifetch": "index.js"
+  },
   "scripts": {
     "start": "node index.js"
   },
@@ -11,10 +14,9 @@
     "fetch",
     "system",
     "info",
-    "neofetch",
-    "fastfetch"
+    "neofetch"
   ],
-  "author": "",
+  "author": "Aoi Karasu <aoikarasu@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "chalk": "^5.4.1"

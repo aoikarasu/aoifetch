@@ -1,1 +1,11 @@
+# Dependency directories
 node_modules/
+
+# Backup/temp files
+*~
+
+# Ignore all hidden/dot directories except .git
+.*/
+
+# Other
+package-lock.json
