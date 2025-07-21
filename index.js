@@ -4,14 +4,62 @@ import { execSync } from 'child_process';
 
 function getUptime() {
   const uptimeSec = os.uptime();
-  const hours = Math.floor(uptimeSec / 3600);
+  const days = Math.floor(uptimeSec / (3600 * 24));
+  const hours = Math.floor((uptimeSec % (3600 * 24)) / 3600);
   const minutes = Math.floor((uptimeSec % 3600) / 60);
-  return `${hours}h ${minutes}m`;
+  let parts = [];
+  if (days > 0) parts.push(`${days} day${days !== 1 ? 's' : ''}`);
+  if (hours > 0) parts.push(`${hours} hour${hours !== 1 ? 's' : ''}`);
+  parts.push(`${minutes} min${minutes !== 1 ? 's' : ''}`);
+  return parts.join(", ");
 }
 
 function getShell() {
   if (process.platform === 'win32') return process.env.COMSPEC || 'cmd.exe';
   return process.env.SHELL || 'unknown';
+}
+
+function getShellVersion(shellPath) {
+  try {
+    // Only basename, e.g. "/bin/bash" => "bash"
+    const shellName = shellPath.split('/').pop();
+    if (/bash|zsh|fish|ksh|dash/.test(shellName)) {
+      let version = execSync(`${shellPath} --version`, { encoding: 'utf8', stdio: ['ignore','pipe','ignore'] }).split('\n')[0];
+      return version;
+    } else if (process.platform === 'win32') {
+      if (/cmd\.exe$/i.test(shellPath)) {
+        return execSync('ver', { encoding: 'utf8' }).trim().split('\n')[0];
+      } else if (/powershell/i.test(shellPath)) {
+        let v = execSync(`${shellPath} -Command "$PSVersionTable.PSVersion"`, {encoding:'utf8'}).trim().split('\n')[0];
+        return v;
+      }
+    }
+  } catch(e) {}
+  return 'N/A';
+}
+
+function getPrettyHost() {
+  if (process.platform === 'linux') {
+    if (process.env.WSL_DISTRO_NAME) {
+      return `Windows Subsystem For Linux - ${process.env.WSL_DISTRO_NAME}`;
+    }
+    try {
+      const pretty = execSync("cat /sys/devices/virtual/dmi/id/product_name 2>/dev/null", {encoding:'utf8'}).trim();
+      if (pretty && pretty !== 'None' && pretty !== '') return pretty;
+    } catch {}
+    if (process.env.PREFIX && process.env.PREFIX.includes('com.termux')) {
+      return 'Android (Termux)';
+    }
+  }
+  if (process.platform === 'darwin') return 'Apple Mac';
+  if (process.platform === 'win32') {
+    try {
+      const pretty = execSync('wmic computersystem get model', {encoding:'utf8'}).split('\n')[1]?.trim();
+      if (pretty && pretty !== '') return pretty;
+    } catch {}
+    return 'Windows PC';
+  }
+  return os.hostname();
 }
 
 function getWM() {
@@ -34,14 +82,12 @@ function getPackages() {
   }
 }
 
-// Returns array of local IPs in form: '{name, address, maskBits}'
 function getLocalIPs() {
   const ips = [];
   const nets = os.networkInterfaces();
   for (const name of Object.keys(nets)) {
     for (const net of nets[name]) {
       if (net.family === 'IPv4' && !net.internal) {
-        // Calculate CIDR prefix (netmask)
         let mask = net.netmask;
         let maskBits = 0;
         if (mask && typeof mask === 'string') {
@@ -61,7 +107,12 @@ function getLocalIPs() {
 }
 
 function getLocale() {
-  return Intl.DateTimeFormat().resolvedOptions().locale;
+  const env = process.env;
+  const loc = env.LC_ALL || env.LANG || env.LANGUAGE || '';
+  if(loc && /^[\w-]+(?:\.[\w-]+)?/.test(loc)) {
+    return loc;
+  }
+  return Intl.DateTimeFormat().resolvedOptions().locale + '.UTF-8';
 }
 
 function getBattery() {
@@ -111,19 +162,27 @@ console.log(chalk.cyan('| (_| |  __/   <  __/ |_) | | |\\ V / | \\__ \\'));
 console.log(chalk.cyan(' \\__,_|\\___|_|\\_\\___|_./|_|_| \\_/  |_|___/'));
 console.log();
 
-console.log(`${chalk.bold('User:')}     ${os.userInfo().username}`);
+const uname = os.userInfo().username;
+const hname = os.hostname();
+const userhost = `${uname}@${hname}`;
+console.log(chalk.bold(userhost));
+console.log('-'.repeat(userhost.length));
+
 console.log(`${chalk.bold('OS:')}       ${os.type()} ${os.release()} (${os.platform()})`);
-console.log(`${chalk.bold('Host:')}     ${os.hostname()}`);
+console.log(`${chalk.bold('Host:')}     ${getPrettyHost()}`);
 console.log(`${chalk.bold('Kernel:')}   ${os.release()}`);
 console.log(`${chalk.bold('Uptime:')}   ${getUptime()}`);
-console.log(`${chalk.bold('Shell:')}    ${getShell()}`);
+
+const shellPath = getShell();
+const shellVersion = getShellVersion(shellPath);
+console.log(`${chalk.bold('Shell:')}    ${shellPath} ${shellVersion !== 'N/A' ? `(${shellVersion})` : ''}`);
+
 console.log(`${chalk.bold('WM:')}       ${getWM()}`);
 console.log(`${chalk.bold('Packages:')} ${getPackages()}`);
 console.log(`${chalk.bold('NodeJS:')}   ${process.version}`);
 console.log(`${chalk.bold('CPU:')}      ${os.cpus()[0].model}`);
 console.log(`${chalk.bold('Memory:')}   ${(os.totalmem() / (1024 ** 3)).toFixed(2)} GB`);
 
-// Print all local IPs like: Local IP (eth0): 192.168.8.178/24
 const localIPs = getLocalIPs();
 if (localIPs.length > 0) {
   for (const ip of localIPs) {
