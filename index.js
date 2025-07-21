@@ -130,7 +130,10 @@ function getLocale() {
 function getBattery() {
   try {
     if (process.platform === 'linux') {
-      const res = execSync("upower -i $(upower -e | grep BAT) | grep percentage | awk '{print $2}'", { encoding: 'utf-8' }).trim();
+      const res = execSync(
+        "upower -i $(upower -e 2>/dev/null | grep BAT) 2>/dev/null | grep percentage | awk '{print $2}'",
+        { encoding: 'utf-8' }
+      ).trim();
       if (res) return res;
     } else if (process.platform === 'darwin') {
       const res = execSync("pmset -g batt | grep -Eo '[0-9]+%' | head -1", { encoding: 'utf-8' }).trim();

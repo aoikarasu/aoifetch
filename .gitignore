@@ -4,8 +4,10 @@ node_modules/
 # Backup/temp files
 *~
 
-# Ignore all hidden/dot directories except .git
+# Ignore all hidden/dot directories except .github
+dist/
 .*/
+!.github/
 
 # Other
 package-lock.json

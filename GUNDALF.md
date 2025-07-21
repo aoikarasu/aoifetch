@@ -7,8 +7,9 @@
 ## Project Structure
 
 - `index.js`  — Main entry point. Gathers and displays system info.
-- `package.json` — Project manifest. Lists dependencies (notably `chalk`), metadata, bin entry, and entry file.
-- `.gitignore` — Ignores `node_modules/`, backup files, dot-directories, and package-lock.json from git.
+- `package.json` — Project manifest. Lists dependencies (notably `chalk`), metadata, bin entry, and entry file. Now includes proper `repository`, `bugs`, and `homepage` fields for npm and GitHub integration.
+- `README.md` — Comprehensive usage and installation guide with badges and sample screenshot info, designed for npmjs.com and GitHub.
+- `.gitignore` — Ignores `node_modules/`, backup files, **all dot-directories except `.github/`**, and `package-lock.json` from git.
 
 ## Main Functional Features (index.js)
 - Uses native Node.js modules `os` and `child_process`.
@@ -42,6 +43,7 @@
 - Uses `bin` key in `package.json` for CLI invocation (as `aoifetch`).
 - Script can be extended by adding new gather-* functions or new lines to output.
 - Output is purely informational—no mutation of the system.
+- **Project is publish-ready (npm). Package name is unscoped: `aoifetch`.**
 
 ## Dependency
 - **chalk** (for color output)
@@ -50,9 +52,11 @@
 - To add new system info, create a new function similar to `getUptime()` and add its result to the output block.
 - Mind OS platform differences (use `process.platform` for checks).
 - For new dependencies, add to `package.json` and run `npm install`.
+- When updating metadata or publishing, keep `"repository"`, `"bugs"`, and `"homepage"` fields up to date for best npm/GitHub experience.
 - Keep the command-line interface simple; currently there are no CLI flags or arguments.
 - All output is synchronous; changes for async ops (filesystem, network) will require refactoring.
-- See `.gitignore` for what is excluded from commits (all dot-directories, backups, etc).
+- See `.gitignore` for what is excluded from commits (**all dot-directories, except `.github/`**, backups, etc).
+- Refer to `README.md` for user-facing usage and publishing details.
 
 ---
 
