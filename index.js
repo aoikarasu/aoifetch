@@ -1,222 +1,17 @@
 #!/usr/bin/env node
 import os from 'os';
 import chalk from 'chalk';
-import { execSync } from 'child_process';
-
-function colorUsagePercent(percent) {
-  if (percent < 70) return chalk.green(percent + '%');
-  if (percent < 90) return chalk.yellowBright(percent + '%');
-  return chalk.red(percent + '%');
-}
-
-function colorBatteryPercent(percent) {
-  if (percent <= 10) return chalk.red(percent + '%');
-  if (percent <= 30) return chalk.yellowBright(percent + '%');
-  return chalk.green(percent + '%');
-}
-
-function getUptime() {
-  const uptimeSec = os.uptime();
-  const days = Math.floor(uptimeSec / (3600 * 24));
-  const hours = Math.floor((uptimeSec % (3600 * 24)) / 3600);
-  const minutes = Math.floor((uptimeSec % 3600) / 60);
-  let parts = [];
-  if (days > 0) parts.push(`${days} day${days !== 1 ? 's' : ''}`);
-  if (hours > 0) parts.push(`${hours} hour${hours !== 1 ? 's' : ''}`);
-  parts.push(`${minutes} min${minutes !== 1 ? 's' : ''}`);
-  return parts.join(", ");
-}
-
-function getShell() {
-  if (process.platform === 'win32') return process.env.COMSPEC || 'cmd.exe';
-  return process.env.SHELL || 'unknown';
-}
-
-function getShellVersion(shellPath) {
-  try {
-    const shellName = shellPath.split('/').pop();
-    if (/bash|zsh|fish|ksh|dash/.test(shellName)) {
-      let version = execSync(`${shellPath} --version`, { encoding: 'utf8', stdio: ['ignore','pipe','ignore'] }).split('\n')[0];
-      return version;
-    } else if (process.platform === 'win32') {
-      if (/cmd\.exe$/i.test(shellPath)) {
-        return execSync('ver', { encoding: 'utf8' }).trim().split('\n')[0];
-      } else if (/powershell/i.test(shellPath)) {
-        let v = execSync(`${shellPath} -Command "$PSVersionTable.PSVersion"`, {encoding:'utf8'}).trim().split('\n')[0];
-        return v;
-      }
-    }
-  } catch(e) {}
-  return 'N/A';
-}
-
-function getPrettyHost() {
-  if (process.platform === 'linux') {
-    if (process.env.WSL_DISTRO_NAME) {
-      return `Windows Subsystem For Linux - ${process.env.WSL_DISTRO_NAME}`;
-    }
-    try {
-      const pretty = execSync("cat /sys/devices/virtual/dmi/id/product_name 2>/dev/null", {encoding:'utf8'}).trim();
-      if (pretty && pretty !== 'None' && pretty !== '') return pretty;
-    } catch {}
-    if (process.env.PREFIX && process.env.PREFIX.includes('com.termux')) {
-      return 'Android (Termux)';
-    }
-  }
-  if (process.platform === 'darwin') return 'Apple Mac';
-  if (process.platform === 'win32') {
-    try {
-      const pretty = execSync('wmic computersystem get model', {encoding:'utf8'}).split('\n')[1]?.trim();
-      if (pretty && pretty !== '') return pretty;
-    } catch {}
-    return 'Windows PC';
-  }
-  return os.hostname();
-}
-
-function getWM() {
-  if (process.platform === 'linux') {
-    try {
-      return execSync('echo $XDG_CURRENT_DESKTOP', { encoding: 'utf-8' }).trim() || 'unknown';
-    } catch {
-      return 'unknown';
-    }
-  }
-  return 'N/A';
-}
-
-function getPackages() {
-  try {
-    if (process.platform === 'win32') return 'see installed apps';
-    return execSync('find ./node_modules -type d -maxdepth 1 | wc -l', { encoding: 'utf-8' }).trim();
-  } catch {
-    return 'unknown';
-  }
-}
-
-function getLocalIPs() {
-  const ips = [];
-  const nets = os.networkInterfaces();
-  for (const name of Object.keys(nets)) {
-    for (const net of nets[name]) {
-      if (net.family === 'IPv4' && !net.internal) {
-        let mask = net.netmask;
-        let maskBits = 0;
-        if (mask && typeof mask === 'string') {
-          maskBits = mask.split('.').map(Number)
-            .map(octet => octet.toString(2))
-            .join('').split('1').length - 1;
-        }
-        ips.push({
-          name,
-          address: net.address,
-          maskBits,
-        });
-      }
-    }
-  }
-  return ips;
-}
-
-function getLocale() {
-  const env = process.env;
-  const loc = env.LC_ALL || env.LANG || env.LANGUAGE || '';
-  if(loc && /^[\w-]+(?:\.[\w-]+)?/.test(loc)) {
-    return loc;
-  }
-  return Intl.DateTimeFormat().resolvedOptions().locale + '.UTF-8';
-}
-
-function getBattery() {
-  try {
-    if (process.platform === 'linux') {
-      const res = execSync(
-        "upower -i $(upower -e 2>/dev/null | grep BAT) 2>/dev/null | grep percentage | awk '{print $2}'",
-        { encoding: 'utf-8' }
-      ).trim();
-      if (res) return res;
-    } else if (process.platform === 'darwin') {
-      const res = execSync("pmset -g batt | grep -Eo '[0-9]+%' | head -1", { encoding: 'utf-8' }).trim();
-      if (res) return res;
-    } else if (process.platform === 'win32') {
-      const res = execSync("WMIC PATH Win32_Battery Get EstimatedChargeRemaining", { encoding: 'utf-8' }).split('\n')[1];
-      if(res && res.trim()) return res.trim() + '%';
-    }
-  } catch {}
-  return 'unknown';
-}
-
-function getMemoryInfo() {
-  // Returns: "used/total (colored percent%)" format, in GB
-  const total = os.totalmem();
-  const free = os.freemem();
-  const used = total - free;
-  const percent = ((used / total) * 100).toFixed(1);
-  return `${(used / (1024 ** 3)).toFixed(2)} / ${(total / (1024 ** 3)).toFixed(2)} GB (${colorUsagePercent(percent)})`;
-}
-
-function getDiskInfo() {
-  try {
-    if (process.platform === 'win32') {
-      // Only check C: for root disk
-      const out = execSync('wmic logicaldisk where "DeviceID=\'C:\'" get Size,FreeSpace /format:csv', { encoding: 'utf-8' });
-      const lines = out.split('\n').filter(Boolean);
-      if (lines.length < 2) return 'unknown';
-      const data = lines[1].split(',');
-      const free = parseInt(data[2], 10), total = parseInt(data[3], 10);
-      if (isNaN(total) || isNaN(free)) return 'unknown';
-      const used = total - free;
-      const percent = ((used / total) * 100).toFixed(1);
-      return `${(used / (1024 ** 3)).toFixed(2)} / ${(total / (1024 ** 3)).toFixed(2)} GB (${colorUsagePercent(percent)})`;
-    } else {
-      // Linux/macOS: parse df -k /
-      const out = execSync('df -k /', { encoding: 'utf-8' });
-      const lines = out.trim().split('\n');
-      if (lines.length < 2) return 'unknown';
-      const parts = lines[1].split(/\s+/);
-      if (parts.length < 5) return 'unknown';
-      const used = parseInt(parts[2], 10) * 1024;
-      const total = parseInt(parts[1], 10) * 1024;
-      const percent = ((used / total) * 100).toFixed(1);
-      return `${(used / (1024**3)).toFixed(2)} / ${(total / (1024**3)).toFixed(2)} GB (${colorUsagePercent(percent)})`;
-    }
-  } catch(e) {}
-  return 'unknown';
-}
-
-function getBatteryPercentColored() {
-  let pct = null;
-  let raw = getBattery();
-  if (typeof raw === 'string' && /\d+/.test(raw)) {
-    pct = parseInt(raw.match(/\d+/)[0], 10);
-  }
-  if (pct === null) return raw;
-  return colorBatteryPercent(pct);
-}
-
-function printColorBars() {
-  const colors = [
-    chalk.bgBlack('   '),
-    chalk.bgRed('   '),
-    chalk.bgGreen('   '),
-    chalk.bgYellow('   '),
-    chalk.bgBlue('   '),
-    chalk.bgMagenta('   '),
-    chalk.bgCyan('   '),
-    chalk.bgWhite('   ')
-  ];
-  const bright = [
-    chalk.bgGray('   '),
-    chalk.bgRedBright('   '),
-    chalk.bgGreenBright('   '),
-    chalk.bgYellowBright('   '),
-    chalk.bgBlueBright('   '),
-    chalk.bgMagentaBright('   '),
-    chalk.bgCyanBright('   '),
-    chalk.bgWhiteBright('   ')
-  ];
-  console.log('\n' + colors.join('') + '\n' + bright.join('') + '\n');
-}
+import { getBatteryPercentColored } from './lib/battery.js';
+import { getCPU } from './lib/cpu.js';
+import { getDiskInfo } from './lib/disk.js';
+import { getPrettyHost } from './lib/host.js';
+import { getLocale, getUptime } from './lib/misc.js';
+import { getMemoryInfo } from './lib/memory.js';
+import { getLocalIPs } from './lib/network.js';
+import { getPackages } from './lib/pkg.js';
+import { getShell, getShellVersion } from './lib/shell.js';
+import { getWM } from './lib/wm.js';
+import { printColorBars } from './lib/color.js';
 
 function main() {
   const b = chalk.cyan;
@@ -227,20 +22,20 @@ function main() {
   console.log(b(userhost));
   console.log('-'.repeat(userhost.length));
 
-  console.log(`${b('OS:')}       ${os.type()} ${os.release()} (${os.platform()})`);
-  console.log(`${b('Host:')}     ${getPrettyHost()}`);
-  console.log(`${b('Kernel:')}   ${os.release()}`);
-  console.log(`${b('Uptime:')}   ${getUptime()}`);
+  console.log(`${b('OS:')} ${os.type()} ${os.release()} (${os.platform()})`);
+  console.log(`${b('Host:')} ${getPrettyHost()}`);
+  console.log(`${b('Kernel:')} ${os.release()}`);
+  console.log(`${b('Uptime:')} ${getUptime(os)}`);
 
   const shellPath = getShell();
   const shellVersion = getShellVersion(shellPath);
-  console.log(`${b('Shell:')}    ${shellPath} ${shellVersion !== 'N/A' ? `(${shellVersion})` : ''}`);
+  console.log(`${b('Shell:')} ${shellPath} ${shellVersion !== 'N/A' ? `(${shellVersion})` : ''}`);
 
-  console.log(`${b('WM:')}       ${getWM()}`);
+  console.log(`${b('WM:')} ${getWM()}`);
   console.log(`${b('Packages:')} ${getPackages()}`);
-  console.log(`${b('NodeJS:')}   ${process.version}`);
-  console.log(`${b('CPU:')}      ${os.cpus()[0].model}`);
-  console.log(`${b('Memory:')}   ${getMemoryInfo()}`);
+  console.log(`${b('NodeJS:')} ${process.version}`);
+  console.log(`${b('CPU:')} ${getCPU()}`);
+  console.log(`${b('Memory:')} ${getMemoryInfo()}`);
   console.log(`${b('Disk (/):')} ${getDiskInfo()}`);
 
   const localIPs = getLocalIPs();
@@ -252,8 +47,8 @@ function main() {
     console.log(`${b('Local IP:')} N/A`);
   }
 
-  console.log(`${b('Battery:')}  ${getBatteryPercentColored()}`);
-  console.log(`${b('Locale:')}   ${getLocale()}`);
+  console.log(`${b('Battery:')} ${getBatteryPercentColored()}`);
+  console.log(`${b('Locale:')} ${getLocale()}`);
 
   printColorBars();
 }

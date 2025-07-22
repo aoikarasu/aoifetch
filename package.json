@@ -1,6 +1,6 @@
 {
   "name": "aoifetch",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A simple Neofetch style system info tool in Node.js, written entirely by gundalf-cli.",
   "main": "index.js",
   "type": "module",
@@ -20,7 +20,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/aoikarasu/aoifetch"
+    "url": "git+https://github.com/aoikarasu/aoifetch.git"
   },
   "bugs": {
     "url": "https://github.com/aoikarasu/aoifetch/issues"
