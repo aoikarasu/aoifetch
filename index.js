@@ -9,7 +9,7 @@ import { getLocale, getUptime } from './lib/misc.js';
 import { getMemoryInfo } from './lib/memory.js';
 import { getLocalIPs } from './lib/network.js';
 import { getPackages } from './lib/pkg.js';
-import { getShell, getShellVersion } from './lib/shell.js';
+import { getShell, getShellPath, getShellVersion } from './lib/shell.js';
 import { getWM } from './lib/wm.js';
 import { printColorBars } from './lib/color.js';
 
@@ -28,7 +28,7 @@ function main() {
   console.log(`${b('Uptime:')} ${getUptime(os)}`);
 
   const shellPath = getShell();
-  const shellVersion = getShellVersion(shellPath);
+  const shellVersion = getShellVersion(getShellPath());
   console.log(`${b('Shell:')} ${shellPath} ${shellVersion !== 'N/A' ? `(${shellVersion})` : ''}`);
 
   console.log(`${b('WM:')} ${getWM()}`);
