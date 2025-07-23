@@ -27,9 +27,9 @@ function main() {
   console.log(`${b('Kernel:')} ${os.release()}`);
   console.log(`${b('Uptime:')} ${getUptime(os)}`);
 
-  const shellPath = getShell();
-  const shellVersion = getShellVersion(getShellPath());
-  console.log(`${b('Shell:')} ${shellPath} ${shellVersion !== 'N/A' ? `(${shellVersion})` : ''}`);
+  const [shellName, shellPath] = getShell();
+  const shellVersion = getShellVersion(shellPath);
+  console.log(`${b('Shell:')} ${shellName} ${shellVersion !== 'N/A' ? `${shellVersion}` : ''}`);
 
   console.log(`${b('WM:')} ${getWM()}`);
   console.log(`${b('Packages:')} ${getPackages()}`);
