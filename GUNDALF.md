@@ -19,6 +19,8 @@
     - `pkg.js` — package/node_modules count
     - `shell.js` — shell path and version auto-detection
     - `wm.js` — window manager or desktop environment parsing for Linux/Windows
+    - `win32/battery.js` — Win32 battery status code mapping for more accurate battery status display on Windows
+    - `win32/wmic.js` — WMIC output parsing helpers for robust property extraction from Windows WMIC queries (added in 0.3.0)
 - `package.json` — Project manifest. Lists dependencies (notably `chalk`), metadata, bin entry, and entry file (index.js). Now includes proper `repository`, `bugs`, and `homepage` fields for npm and GitHub integration.
 - `README.md` — Usage and installation guide with badges and sample screenshot.
 - `.gitignore` — Standard ignores, all dot-directories except `.github/`, node_modules/, backup files, and package-lock.json.
@@ -39,6 +41,7 @@
 - Designed for maintainability and extensibility: add a new function to `lib/` to extend.
 - Project is publish-ready and suitable as a CLI system info tool for Node.js environments.
 - No output or logic changed; only internal code structure is modularized and improved.
+- As of 0.3.0, robust Windows WMIC output helpers (`parseSpacePadded`, `parseCsv`, `getWmicProps`) allow for flexible and reliable parsing of multi-property WMIC outputs in Windows-specific modules.
 
 ---
 

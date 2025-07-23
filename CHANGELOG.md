@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0
+
+### Added
+- WMIC parsing helpers to robustly handle multi-property WMIC output for Windows support improvements.
+
+### Changed
+- Improved Windows battery display: now shows both percentage and status, instead of just percentage.
+
 ## 0.2.0
 
 ### Major
