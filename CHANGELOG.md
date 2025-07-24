@@ -3,10 +3,15 @@
 ## 0.3.0
 
 ### Added
-- WMIC parsing helpers to robustly handle multi-property WMIC output for Windows support improvements.
+- Windows Subsystem for Linux (WSL) detection.
+- WMIC parsing helpers to robustly handle multi-property WMIC output for Windows and WSL support improvements.
 
 ### Changed
+- Improved shell version display.
 - Improved Windows battery display: now shows both percentage and status, instead of just percentage.
+
+### Fixed
+- Battery percentage for WSL users now works as expected.
 
 ## 0.2.0
 
