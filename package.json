@@ -27,6 +27,8 @@
   },
   "homepage": "https://github.com/aoikarasu/aoifetch#readme",
   "dependencies": {
-    "chalk": "^5.4.1"
+    "chalk": "^5.4.1",
+    "node-system-stats": "^2.0.5",
+    "systeminformation": "^5.27.7"
   }
 }
