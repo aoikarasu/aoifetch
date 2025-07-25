@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.4.0
+
+### Added
+- Cross-platform, modular package/app/module detection: supports dpkg, rpm, apk, pacman, Termux pkg, Homebrew, MacPorts, Chocolatey, Windows StartApps, and Node.js modules.
+- Display of public IP address in standard output (uses curl/curl.exe, robust fallback).
+- Improved pretty OS name/arch (Linux `/etc/os-release`, Windows CIM).
+- CIM (PowerShell) querying and parsing helpers for robust property retrieval on Windows using modern API (replaces/augments legacy WMIC; future-proof for WSL/Windows platform info).
+
+### Changed
+- Improved CPU/ARM model and core count detection on all major platforms.
+- Robust, platform-specific detection (Termux, Linux, macOS, Windows/WSL) and status/error messages.
+- Mask bit/IPv4 computation and output are more robust; public IP logic added.
+- Uptime, locale, and parsing improved; time units colorized; more helpers.
+- Unified OS and architecture pretty-print (now modular, improved fallback).
+- Now helper-driven, extensible, colorizes package counts, always lists node modules last.
+- Codebase now modular, extensible, and easier to add platform quirks or features.
+
+### Fixed
+- Assorted bugfixes and logic improvements in package manager/platform detection, host/CPU/battery details, output formatting/consistency.
+
 ## 0.3.0
 
 ### Added

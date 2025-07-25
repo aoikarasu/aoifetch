@@ -1,6 +1,6 @@
 # aoifetch
 
-[![npm version](https://img.shields.io/npm/v/aoifetch.svg)](https://www.npmjs.com/package/aoifetch)
+[![npm version, updated, weekly downloads, stars](https://nodei.co/npm/aoifetch.svg?style=shields&data=v,u,d,s&color=orange)](https://nodei.co/npm/aoifetch/)
 ![npm package minimized gzipped size](https://img.shields.io/bundlejs/size/aoifetch)
 ![npm unpacked size](https://img.shields.io/npm/unpacked-size/aoifetch)
 
@@ -108,4 +108,6 @@ MIT
 
 ---
 
+> [![NPM Badge](https://nodei.co/npm/aoifetch.svg)](https://nodei.co/npm/aoifetch/)
+> 
 > Made entirely with `gundalf-cli`.

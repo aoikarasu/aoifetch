@@ -8,42 +8,58 @@
 
 - `index.js`  — Main entry point. Gathers and displays system info.
 - `lib/` — All functional logic modules, each focused on a specific type of system detail:
-    - `battery.js` — battery information, percentage and color logic
-    - `color.js` — color utilities for coloring output and printing color bars
-    - `cpu.js` — CPU info detection and formatting
-    - `disk.js` — disk usage gathering and formatting
-    - `host.js` — host model detection, enhanced for Linux, Termux, macOS, Windows
-    - `memory.js` — memory usage (used/total/percentage)
-    - `misc.js` — miscellaneous utilities: platform detection (including Termux and WSL), uptime formatting, locale detection
-    - `network.js` — local IP address discovery with mask bits, by interface
-    - `pkg.js` — package/node_modules count
-    - `shell.js` — shell path and version auto-detection
-    - `wm.js` — window manager or desktop environment parsing for Linux/Windows
-    - `win32/battery.js` — Win32 battery status code mapping for more accurate battery status display on Windows
-    - `win32/wmic.js` — WMIC output parsing helpers for robust property extraction, with queryWslWmicProps for WSL-native WMIC access
-- `package.json` — Project manifest. Lists dependencies (notably `chalk`), metadata, bin entry, and entry file (index.js). Now includes proper `repository`, `bugs`, and `homepage` fields for npm and GitHub integration.
-- `README.md` — Usage and installation guide with badges and sample screenshot.
-- `.gitignore` — Standard ignores, all dot-directories except `.github/`, node_modules/, backup files, and package-lock.json.
+    - `battery.js` — battery info, status, and color logic, platform/WSL/Termux-aware
+    - `color.js` — color utilities for output and bars
+    - `cpu.js` — robust CPU/core detection; ARM/Android/Termux hardware handling
+    - `disk.js` — disk usage gathering and format
+    - `host.js` — host/model detection, enhanced per-OS (Linux, Termux, macOS, Windows)
+    - `memory.js` — memory usage (used/total/percent)
+    - `misc.js` — platform detection (including Termux, WSL), uptime formatting, locale detection, flexible output parsers
+    - `network.js` — local IP/netmask (w/ correct bits), public IP, all interfaces
+    - `pkg.js` — system and node package counting, modular detection for dpkg, rpm, pacman, apk, Termux-pkg, brew, port, choco, StartApps, .app, node
+    - `shell.js` — shell path/version autodetection
+    - `wm.js` — window manager/desktop parsing (per OS)
+    - `win32/battery.js` — Win32 battery status mapping for Windows
+    - `win32/wmic.js` — WMIC output parsing (legacy)
+    - `win32/cim.js` — Windows CIM (PowerShell) querying helpers
+    - `darwin/host.js` — Apple device model mapping
+- `package.json` — Project manifest, main entry, bin setup, dependency management (chalk), repo/bugs/homepage fields.
+- `README.md` — Usage and install guide, sample output.
+- `.gitignore` — Standard ignores, all dot/backup/package-lock/node_modules.
 
 ## Modularization & Platform Updates
-- Helper functions are split into files in `lib/` for maintainability and composability.
-- Platform detection logic centralized in `lib/misc.js` via `getPlatform()`.
-- WSL detection via new `isWsl()` for robust support of WSL-specific logic (battery, future features).
-- Windows and WSL WMIC helpers:
-    - `queryWslWmicProps` enables WMIC-based detection in WSL (calls WMIC via `cmd.exe`).
-    - Shared internal code for WMIC query construction minimizes duplication.
-    - `getWmicProps` is unmodified, legacy-compatible for PATH-based queries.
-- Battery info logic now supports WSL, including detection routines and accurate percent/status reporting for WSL-on-Windows laptops.
+- Helper logic split into files for maintainability/extensibility.
+- Platform detection in `lib/misc.js:getPlatform()`, WSL via `isWsl()`.
+- OS, CPU, Battery, Network, and Package logic now robust/cross-platform and easy to extend via command/manager maps.
+- Package counting is modular (see `lib/pkg.js`): managers/commands are mapped, not hardcoded; new package managers are a one-line addition.
+- Improved `network.js`, `os.js`, and `battery.js` for cross-platform quirks.
+- Colorized number outputs for increased clarity.
 
 ## Main Functional Features (index.js)
-- Uses native Node.js modules `os` and `child_process`.
-- Executable as a CLI tool (`#!/usr/bin/env node` shebang and bin setup).
-- Output content and format is as previously described.
-- Now orchestrates only, delegating all info gathering to `lib/` modules.
+- Pure orchestrator; delegates all info gathering to modules.
+- Unified output formatting uses chalk/color for emphasis, maskbits (IP), colored uptimes, colored package/battery counts.
+- Displays:
+    - User@Host
+    - OS (pretty, arch, kernel)
+    - Host/model
+    - Uptime (colored)
+    - Shell (+version)
+    - WM/DE
+    - Packages: e.g. `232 (dpkg), 31 (node)`
+    - Node version
+    - CPU (model, arch, core count, freq)
+    - Memory (used/total, percent)
+    - Disk root (used/total, percent)
+    - All local IPv4s (w/ mask bits)
+    - Public IP
+    - Battery (percent, status, colored)
+    - Locale
+    - Color bars
 
 ## Design and Usage Notes
-- Designed for maintainability and extensibility: add a new function to `lib/` to extend.
-- Project is publish-ready and suitable as a CLI system info tool for Node.js environments.
+- Add logic by writing/extending modules in `lib/`.
+- All platform quirks/edge-cases are abstracted in their own modules.
+- Suitable for publish/distribution as a robust cross-platform CLI info script for Node.js.
 
 ---
 
