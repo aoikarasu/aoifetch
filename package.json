@@ -1,6 +1,6 @@
 {
   "name": "aoifetch",
-  "version": "0.4.0",
+  "version": "0.4.2",
   "description": "A simple Neofetch style system info tool in Node.js, written entirely by gundalf-cli.",
   "main": "index.js",
   "type": "module",
