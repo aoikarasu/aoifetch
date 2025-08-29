@@ -15,6 +15,7 @@ import { printColorBars } from './lib/color.js';
 import { getPrettyOs } from './lib/os.js';
 import { getGPU } from './lib/gpu.js';
 import { getDisplays } from './lib/display.js';
+import { getThermals } from './lib/thermals.js';
 
 function main() {
   const b = chalk.cyan;
@@ -41,6 +42,7 @@ function main() {
   console.log(`${b('CPU:')} ${getCPU()}`);
   console.log(`${b('GPU:')} ${getGPU()}`);
   console.log(`${b('Displays:')} ${getDisplays()}`);
+  console.log(`${b('Thermals:')} ${getThermals()}`);
   console.log(`${b('Memory:')} ${getMemoryInfo()}`);
   console.log(`${b('Disk (/):')} ${getDiskInfo()}`);
 

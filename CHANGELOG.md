@@ -5,6 +5,7 @@
 ### Added
 - GPU information line with cross-platform detection (best-effort via lspci/glxinfo on Linux, system_profiler on macOS, and CIM on Windows).
 - Display information line (resolution and refresh) via xrandr/wlr-randr on Linux, system_profiler on macOS, and CIM/WMIC on Windows.
+- Thermal information line (best-effort): lm-sensors or /sys on Linux, iStats on macOS, CIM (MSAcpi_ThermalZoneTemperature) on Windows, and dumpsys battery on Android/Termux.
 
 ### Fixed
 - Guard `parseListFormat` against null/undefined output to prevent crashes on Alpine Linux when manager probes return no data.
