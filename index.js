@@ -14,6 +14,7 @@ import { getWM } from './lib/wm.js';
 import { printColorBars } from './lib/color.js';
 import { getPrettyOs } from './lib/os.js';
 import { getGPU } from './lib/gpu.js';
+import { getDisplays } from './lib/display.js';
 
 function main() {
   const b = chalk.cyan;
@@ -39,6 +40,7 @@ function main() {
   console.log(`${b('NodeJS:')} ${process.version}`);
   console.log(`${b('CPU:')} ${getCPU()}`);
   console.log(`${b('GPU:')} ${getGPU()}`);
+  console.log(`${b('Displays:')} ${getDisplays()}`);
   console.log(`${b('Memory:')} ${getMemoryInfo()}`);
   console.log(`${b('Disk (/):')} ${getDiskInfo()}`);
 
