@@ -21,6 +21,12 @@
 - **Config File:** Read `~/.config/aoifetch/config.json` (modules, colors, palette, timeouts). `--config <path>`.
 - **Snapshot:** `--save out.txt|out.json` to persist results.
 
+## Terminal Detection Enhancements
+- Prefer `$TERM` on Linux/macOS/Termux with meta in parentheses (e.g., `xterm-256color (iTerm2)`).
+- Expand meta sources: `TERM_PROGRAM`, `KONSOLE_VERSION`, kitty markers, `TERMINAL_EMULATOR`, `WT_SESSION`.
+- Improve font detection: parse kitty, Alacritty, WezTerm, Konsole, foot configs; GNOME gsettings; iTerm2 defaults; Windows Terminal settings.json.
+- Add fast timeouts and skip when non-interactive or tools missing.
+
 ## Extensibility
 - **Plugin Hooks:** Load `~/.config/aoifetch/plugins/*.js` exporting `{name, collect()}`; print ordered by config.
 - **Library API:** Export `collect()` returning structured data used by CLI; enables reuse/tests.

@@ -8,6 +8,8 @@
 - Thermal information line (best-effort): lm-sensors or /sys on Linux, iStats on macOS, CIM (MSAcpi_ThermalZoneTemperature) on Windows, and dumpsys battery on Android/Termux.
 - Package counts now include Flatpak and Snap on Linux; Homebrew counts are reported on Linux when installed. Existing apk support retained and validated.
 - Terminal information: show terminal name (TERM_PROGRAM, WT_SESSION, etc.) and best-effort terminal font via platform configs (gsettings/Konsole/kitty/Alacritty/WezTerm on Linux, iTerm2 defaults on macOS, Windows Terminal settings on Windows).
+- Config system: reads `~/.config/aoifetch/settings.json` with `color` setting controlling label color (default: cyan). New CLI: `aoifetch config --color` (show), `aoifetch config --color <name>` (set), `aoifetch config --all` (show all).
+- CLI: support `-v, --version` to print version from package.json.
 
 ### Fixed
 - Guard `parseListFormat` against null/undefined output to prevent crashes on Alpine Linux when manager probes return no data.

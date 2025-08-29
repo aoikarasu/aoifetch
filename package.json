@@ -28,6 +28,7 @@
   },
   "homepage": "https://github.com/aoikarasu/aoifetch#readme",
   "dependencies": {
-    "chalk": "^5.4.1"
+    "chalk": "^5.4.1",
+    "commander": "^11.1.0"
   }
 }

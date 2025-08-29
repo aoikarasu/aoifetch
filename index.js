@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 //import os from 'os';
 import chalk from 'chalk';
+import { program } from 'commander';
+import pkg from './package.json' with { type: 'json' };
+import { readConfig, writeConfig, getAllSettings, getConfigPath, getColorizer, isValidColor } from './config.js';
 import { getBatteryPercentColored } from './lib/battery.js';
 import { getCPU } from './lib/cpu.js';
 import { getDiskInfo } from './lib/disk.js';
@@ -18,8 +21,13 @@ import { getDisplays } from './lib/display.js';
 import { getThermals } from './lib/thermals.js';
 import { getTerminalName, getTerminalFont } from './lib/terminal.js';
 
+function getConfig() {
+  return readConfig();
+}
+
 function main() {
-  const b = chalk.cyan;
+  const cfg = getConfig();
+  const b = getColorizer(cfg);
 
   const os = getPrettyOs();
   const uname = os.userInfo().username;
@@ -65,4 +73,51 @@ function main() {
   printColorBars();
 }
 
-main();
+program
+  .name('aoifetch')
+  .description('Neofetch-style system info for Node.js')
+  .version(pkg.version, '-v, --version', 'output the version number')
+  .showHelpAfterError();
+
+program
+  .command('config')
+  .description('View or change aoifetch settings')
+  .option('--color [name]', 'Get or set the label color (e.g., cyan, redBright)')
+  .option('--all', 'Show all settings')
+  .action((opts) => {
+    if (opts.all) {
+      const all = getAllSettings();
+      console.log(JSON.stringify(all, null, 2));
+      console.log(`File: ${getConfigPath()}`);
+      return;
+    }
+
+    if (opts.color === true) {
+      const cfg = readConfig();
+      const current = cfg.color || 'default (cyan)';
+      console.log(`color: ${current}`);
+      return;
+    }
+    if (typeof opts.color === 'string') {
+      const name = opts.color;
+      if (!isValidColor(name)) {
+        console.log(`Invalid color: ${name}`);
+        console.log('Valid colors: black, red, green, yellow, blue, magenta, cyan, white, gray/grey, and Bright variants (e.g., redBright).');
+        return;
+      }
+      const next = writeConfig({ color: name });
+      console.log(`Updated color to '${name}'.`);
+      console.log(`File: ${getConfigPath()}`);
+      return;
+    }
+
+    // If config was called without flags
+    program.commands.find(c => c.name() === 'config').help();
+  });
+
+const argv = process.argv.slice(2);
+if (argv.length === 0) {
+  main();
+} else {
+  program.parse(process.argv);
+}
