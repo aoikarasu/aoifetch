@@ -10,6 +10,10 @@
 - Terminal information: show terminal name (TERM_PROGRAM, WT_SESSION, etc.) and best-effort terminal font via platform configs (gsettings/Konsole/kitty/Alacritty/WezTerm on Linux, iTerm2 defaults on macOS, Windows Terminal settings on Windows).
 - Config system: reads `~/.config/aoifetch/settings.json` with `color` setting controlling label color (default: cyan). New CLI: `aoifetch config --color` (show), `aoifetch config --color <name>` (set), `aoifetch config --all` (show all).
 - CLI: support `-v, --version` to print version from package.json.
+- CLI: new flags `--no-color` (allow Chalk to disable colors), `--no-pkg` (hide Packages line), and `--no-term` (hide Terminal and Terminal Font lines). Environment `NO_COLOR=1` (and `AOIFETCH_NO_COLOR=1`) are respected.
+
+### Changed
+- Terminal name format now prefers `$TERM` on Linux/macOS/Termux with a parenthetical hint when available (e.g., `xterm-256color (iTerm2)` or `xterm-256color (Konsole)`).
 
 ### Fixed
 - Guard `parseListFormat` against null/undefined output to prevent crashes on Alpine Linux when manager probes return no data.
