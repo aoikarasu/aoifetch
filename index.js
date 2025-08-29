@@ -25,7 +25,7 @@ function getConfig() {
   return readConfig();
 }
 
-function main() {
+function main(opts) {
   const cfg = getConfig();
   const b = getColorizer(cfg);
 
@@ -46,9 +46,9 @@ function main() {
   console.log(`${b('Shell:')} ${shellName} ${shellVersion !== 'N/A' ? `${shellVersion}` : ''}`);
 
   console.log(`${b('WM:')} ${getWM()}`);
-  console.log(`${b('Terminal:')} ${getTerminalName()}`);
-  console.log(`${b('Font:')} ${getTerminalFont()}`);
-  console.log(`${b('Packages:')} ${getPackages()}`);
+  opts.term && console.log(`${b('Terminal:')} ${getTerminalName()}`);
+  opts.term && console.log(`${b('Terminal Font:')} ${getTerminalFont()}`);
+  opts.pkg && console.log(`${b('Packages:')} ${getPackages()}`);
   console.log(`${b('NodeJS:')} ${process.version}`);
   console.log(`${b('CPU:')} ${getCPU()}`);
   console.log(`${b('GPU:')} ${getGPU()}`);
@@ -57,26 +57,43 @@ function main() {
   console.log(`${b('Memory:')} ${getMemoryInfo()}`);
   console.log(`${b('Disk (/):')} ${getDiskInfo()}`);
 
-  const localIPs = getLocalIPs();
-  if (localIPs.length > 0) {
-    for (const ip of localIPs) {
-      console.log(`${b(`Local IP (${ip.name}):`)} ${ip.address}/${ip.maskBits}`);
+  if (opts.lan) {
+    const localIPs = getLocalIPs();
+    if (localIPs.length > 0) {
+      for (const ip of localIPs) {
+        console.log(`${b(`Local IP (${ip.name}):`)} ${ip.address}/${ip.maskBits}`);
+      }
+    } else {
+      console.log(`${b('Local IP:')} N/A`);
     }
-  } else {
-    console.log(`${b('Local IP:')} N/A`);
   }
-  console.log(`${b('Public IP:')} ${getPublicIP()}`);
+  if (opts.ip) {
+    console.log(`${b('Public IP:')} ${getPublicIP()}`);
+  }
 
   console.log(`${b('Battery:')} ${getBatteryPercentColored()}`);
   console.log(`${b('Locale:')} ${getLocale()}`);
 
-  printColorBars();
+  opts.color && chalk.level > 0 && printColorBars();
+}
+
+const nc = process.env.NO_COLOR;
+const anc = process.env.AOIFETCH_NO_COLOR;
+
+if (Number(nc) === 1 || Number(anc) === 1) {
+  chalk.level = 0;
 }
 
 program
   .name('aoifetch')
   .description('Neofetch-style system info for Node.js')
+  .option('--no-color', 'Disable colored output')
+  .option('--no-pkg', 'Hide package managers')
+  .option('--no-term', 'Hide terminal name and font')
+  .option('--no-lan', 'Hide local IP addresses')
+  .option('--no-ip', 'Hide public IP address')
   .version(pkg.version, '-v, --version', 'output the version number')
+  .action((opts) => main(opts))
   .showHelpAfterError();
 
 program
@@ -115,9 +132,4 @@ program
     program.commands.find(c => c.name() === 'config').help();
   });
 
-const argv = process.argv.slice(2);
-if (argv.length === 0) {
-  main();
-} else {
   program.parse(process.argv);
-}

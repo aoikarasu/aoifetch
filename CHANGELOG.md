@@ -11,6 +11,7 @@
 - Config system: reads `~/.config/aoifetch/settings.json` with `color` setting controlling label color (default: cyan). New CLI: `aoifetch config --color` (show), `aoifetch config --color <name>` (set), `aoifetch config --all` (show all).
 - CLI: support `-v, --version` to print version from package.json.
 - CLI: new flags `--no-color` (allow Chalk to disable colors), `--no-pkg` (hide Packages line), and `--no-term` (hide Terminal and Terminal Font lines). Environment `NO_COLOR=1` (and `AOIFETCH_NO_COLOR=1`) are respected.
+ - New flags: `--no-lan` (hide Local IP addresses) and `--no-ip` (hide Public IP line).
 
 ### Changed
 - Terminal name format now prefers `$TERM` on Linux/macOS/Termux with a parenthetical hint when available (e.g., `xterm-256color (iTerm2)` or `xterm-256color (Konsole)`).
