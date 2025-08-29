@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- GPU information line with cross-platform detection (best-effort via lspci/glxinfo on Linux, system_profiler on macOS, and CIM on Windows).
+
 ### Fixed
 - Guard `parseListFormat` against null/undefined output to prevent crashes on Alpine Linux when manager probes return no data.
 - Handle environments where `os.networkInterfaces()` throws (e.g., UserLAnd) by safely returning no local IPs instead of crashing.
