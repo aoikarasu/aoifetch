@@ -16,6 +16,7 @@ import { getPrettyOs } from './lib/os.js';
 import { getGPU } from './lib/gpu.js';
 import { getDisplays } from './lib/display.js';
 import { getThermals } from './lib/thermals.js';
+import { getTerminalName, getTerminalFont } from './lib/terminal.js';
 
 function main() {
   const b = chalk.cyan;
@@ -37,6 +38,8 @@ function main() {
   console.log(`${b('Shell:')} ${shellName} ${shellVersion !== 'N/A' ? `${shellVersion}` : ''}`);
 
   console.log(`${b('WM:')} ${getWM()}`);
+  console.log(`${b('Terminal:')} ${getTerminalName()}`);
+  console.log(`${b('Font:')} ${getTerminalFont()}`);
   console.log(`${b('Packages:')} ${getPackages()}`);
   console.log(`${b('NodeJS:')} ${process.version}`);
   console.log(`${b('CPU:')} ${getCPU()}`);
